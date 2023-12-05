@@ -1,0 +1,88 @@
+title: "Project_Result" 
+author: "Aparna Gupta" 
+date: "3/15/2022" 
+
+# Check if 'fastDummies' package is installed; if not, install and load it
+
+```{r}
+if (!require('fastDummies')) {
+  install.packages('fastDummies')
+  library('fastDummies')
+}
+library(ggplot2)
+
+```
+
+# Read the CSV file into a data frame and display its contents
+
+```{r}
+
+csv_data <- read.csv(file = 'csv_data.csv')
+csv_data
+```
+
+# Create scatter plots for different variables against CO2 emissions
+
+```{r}
+
+plot(csv_data$eng_size, csv_data$co2_emm, main="Engine Size v/s Carbon Dioxide emissions", xlab="Engine Size", ylab="CO2 emissions", pch=19, col = "red")
+plot(csv_data$cylinders, csv_data$co2_emm, main="cylinders v/s v/s Carbon Dioxide emissions", xlab="Cylinders",ylab="CO2 emissions", pch=17, col = "blue")
+plot(csv_data$fuel_consumption_hwy_city, csv_data$co2_emm, main="fuel consumption v/s v/s Carbon Dioxide emissions", xlab="fuel consumption highway and city (l/100km)", ylab="CO2 emissions", pch=24, col = "green")
+
+```
+```{r}
+ggplot(csv_data, aes(fuel_consumption_hwy_city,co2_emm, colour = fuel_type),
+xlab = "Fuel Consumption", ylab = 'CO2 Emmissions') +
+geom_point()
+```
+```{r}
+ggplot(csv_data, aes(fuel_type,co2_emm,colour = class), xlab = "CO2 Emissions",
+ylab = "Fuel Type") +
+geom_point()
+```
+
+```{r}
+ggplot(csv_data, aes(fuel_consumption_hwy_city, co2_emm,colour = class), xlab = "CO2 Emissions",
+ylab = "Fuel Type") +
+geom_point()
+```
+
+# Create dummy variables for categorical columns ('make', 'fuel_type', 'class')
+
+```{r}
+factor_vec = c('make', 'fuel_type', 'class') 
+csv_data <- dummy_cols(csv_data, select_columns = factor_vec) 
+head(csv_data)
+colnames(csv_data)
+
+```
+
+# Build and summarize the first linear regression model
+
+```{r}
+model_1 = lm(co2_emm ~ csv_data$eng_size + csv_data$cylinders + csv_data$fuel_consumption_city + csv_data$co2_rating + csv_data$smog_rating +csv_data$class_compact + csv_data$class_full_size+ csv_data$class_mid_size + csv_data$class_minicompact + csv_data$class_minivan + csv_data$class_pickup_truck_small + csv_data$class_pickup_truck_standard +  csv_data$class_special_purpose_vehicle + csv_data$class_station_wagon_mid_size + csv_data$class_station_wagon_small + csv_data$class_subcompact + csv_data$class_suv_small + csv_data$class_suv_standard + csv_data$class_two_seater + csv_data$class_van_passenger + csv_data$fuel_type_Z + csv_data$fuel_type_E + csv_data$fuel_type_X + csv_data$fuel_type_D+csv_data$make_acura + csv_data$make_alfa_romeo +  csv_data$make_aston_martin + csv_data$make_audi +  csv_data$make_bentley + csv_data$make_bmw +  csv_data$make_buick + csv_data$make_cadillac +  csv_data$make_chevrolet + csv_data$make_chrysler + csv_data$make_dodge + csv_data$make_fiat + csv_data$make_ford + csv_data$make_genesis + csv_data$make_gmc + csv_data$make_honda + csv_data$make_hyundai + csv_data$make_infiniti + csv_data$make_jaguar + csv_data$make_jeep + csv_data$make_kia + csv_data$make_lamborghini + csv_data$make_land_rover + csv_data$make_lexus + csv_data$make_lincoln + csv_data$make_maserati + csv_data$make_mazda + csv_data$make_mercedes_benz + csv_data$make_mini + csv_data$make_mitsubishi + csv_data$make_nissan + csv_data$make_porsche + csv_data$make_ram + csv_data$make_rolls_royce + csv_data$make_smart + csv_data$make_subaru + csv_data$make_toyota + csv_data$make_volkswagen + csv_data$make_volvo, data = csv_data)
+summary(model_1)
+residual_1 = residuals(model_1)
+qqnorm(residual_1)
+qqline(residual_1)
+```
+
+# Build and summarize the second linear regression model
+
+```{r}
+model_2 = lm(co2_emm ~  csv_data$fuel_consumption_city + csv_data$co2_rating + + csv_data$class_compact + csv_data$class_full_size+ csv_data$class_mid_size + csv_data$class_minicompact + csv_data$class_minivan + csv_data$class_pickup_truck_small + csv_data$class_pickup_truck_standard +  csv_data$class_special_purpose_vehicle + csv_data$class_station_wagon_mid_size + csv_data$class_station_wagon_small + csv_data$class_subcompact + csv_data$class_suv_small + csv_data$class_suv_standard + csv_data$class_two_seater + csv_data$class_van_passenger + csv_data$fuel_type_Z + csv_data$fuel_type_E + csv_data$fuel_type_X + csv_data$fuel_type_D, data = csv_data)
+
+summary(model_2)
+residual_2 = residuals(model_2)
+qqnorm(residual_2)
+qqline(residual_2)
+```
+
+
+# Perform ANOVA to compare the two models
+
+```{r}
+anova_model = anova(model_2, model_1) 
+anova_model
+```
+
